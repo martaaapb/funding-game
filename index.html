@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Funding Game Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --text-2xl: clamp(2rem, 1.2rem + 2.5vw, 3.5rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+      --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem;
+      --space-12: 3rem; --space-16: 4rem;
+      --radius-sm: 0.375rem; --radius-md: 0.75rem; --radius-lg: 1rem; --radius-full: 9999px;
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-body: 'Work Sans', Arial, sans-serif;
+      --color-bg: #f7f6f2; --color-surface: #fbfbf9; --color-surface-2: #f1efea;
+      --color-border: #d7d2c9; --color-text: #28251d; --color-muted: #67645d;
+      --color-primary: #0d7c86; --color-primary-2: #07535a; --color-success: #437a22;
+      --color-warning: #a35d00; --color-danger: #a13544; --color-gold: #c28a00;
+      --shadow: 0 8px 24px rgba(24, 27, 26, 0.08);
+    }
+    [data-theme="dark"] {
+      --color-bg: #171614; --color-surface: #1e1c19; --color-surface-2: #252320;
+      --color-border: #3a3732; --color-text: #ece7de; --color-muted: #b1aaa1;
+      --color-primary: #4f98a3; --color-primary-2: #78b6be; --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: var(--font-body); background: linear-gradient(180deg, var(--color-bg), var(--color-surface-2));
+      color: var(--color-text); min-height: 100vh; line-height: 1.5;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: var(--space-6); }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap: var(--space-4); margin-bottom: var(--space-6); }
+    .brand { display:flex; gap: var(--space-3); align-items:center; }
+    .logo {
+      width: 42px; height: 42px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ffd86e, var(--color-gold));
+      display:grid; place-items:center; color:#1d1a12; font-weight:700;
+      box-shadow: var(--shadow);
+    }
+    h1,h2,h3 { margin: 0; line-height: 1.1; }
+    h1, .display { font-family: var(--font-display); }
+    h1 { font-size: var(--text-2xl); }
+    h2 { font-size: var(--text-xl); margin-bottom: var(--space-3); }
+    h3 { font-size: var(--text-lg); margin-bottom: var(--space-2); }
+    p { margin: 0 0 var(--space-3); max-width: 70ch; }
+    .muted { color: var(--color-muted); }
+    .btn {
+      border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text);
+      padding: 0.85rem 1.1rem; border-radius: var(--radius-full); font-weight: 600; cursor: pointer;
+      transition: 0.18s ease; min-height: 44px; font-family: var(--font-body); font-size: var(--text-sm);
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .btn.primary { background: var(--color-primary); color: white; border-color: transparent; }
+    .btn.ghost { background: transparent; }
+    .grid { display:grid; gap: var(--space-5); }
+    .hero { display:grid; grid-template-columns: 1.2fr 0.8fr; gap: var(--space-6); align-items: stretch; margin-bottom: var(--space-6); }
+    .card {
+      background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+      border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow);
+      padding: var(--space-5);
+    }
+    .hero-art {
+      background: linear-gradient(135deg, rgba(13,124,134,0.18), rgba(194,138,0,0.16));
+      border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5);
+      display:grid; gap: var(--space-4); align-content:space-between;
+    }
+    .stats { display:grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin-bottom: var(--space-5); }
+    .stat { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); }
+    .stat .label { color: var(--color-muted); font-size: var(--text-sm); }
+    .stat .value { font-size: var(--text-lg); font-weight: 700; margin-top: 0.15rem; }
+    .meter { height: 10px; border-radius: var(--radius-full); background: var(--color-surface-2); overflow:hidden; margin-top: var(--space-2); }
+    .meter > span { display:block; height:100%; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-2)); transition: width 0.4s ease; }
+    .choices { display:grid; gap: var(--space-3); margin-top: var(--space-4); }
+    .choice {
+      text-align:left; width:100%; padding: var(--space-4); border-radius: var(--radius-md); border:1px solid var(--color-border);
+      background: var(--color-surface); cursor:pointer; font-family: var(--font-body); font-size: var(--text-sm);
+      color: var(--color-text); transition: 0.18s ease;
+    }
+    .choice:hover { border-color: var(--color-primary); transform: translateY(-1px); box-shadow: var(--shadow); }
+    .choice strong { display:block; margin-bottom: 0.3rem; font-size: var(--text-base); }
+    .pill { display:inline-block; padding: .35rem .7rem; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight:700; letter-spacing: .03em; text-transform: uppercase; margin-bottom: var(--space-3); }
+    .pill.primary { background: rgba(13,124,134,.12); color: var(--color-primary); }
+    .pill.gold { background: rgba(194,138,0,.13); color: var(--color-warning); }
+    .panel-row { display:grid; grid-template-columns: 1.3fr 0.7fr; gap: var(--space-5); }
+    .mini-list { display:grid; gap: var(--space-3); }
+    .mini-item { padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-surface-2); border:1px solid var(--color-border); }
+    .screen { display:none; }
+    .screen.active { display:block; }
+    .timeline { display:flex; gap: var(--space-2); flex-wrap:wrap; margin-bottom: var(--space-4); align-items: center; }
+    .dot { width: 12px; height: 12px; border-radius:50%; background: var(--color-border); transition: background 0.3s ease; }
+    .dot.active { background: var(--color-primary); }
+    .leaderboard-row { display:flex; justify-content:space-between; gap: var(--space-3); padding: var(--space-3) 0; border-bottom:1px solid var(--color-border); }
+    .leaderboard-row.you { font-weight: 700; color: var(--color-primary); }
+    .footer-actions { display:flex; gap: var(--space-3); flex-wrap:wrap; margin-top: var(--space-4); }
+    .result-box { padding: var(--space-4); border-radius: var(--radius-md); background: var(--color-surface-2); border:1px solid var(--color-border); }
+    .tag { font-size: var(--text-xs); color: var(--color-muted); text-transform: uppercase; letter-spacing: .05em; }
+    .effect-positive { color: var(--color-success); font-weight: 600; }
+    .effect-negative { color: var(--color-danger); font-weight: 600; }
+    @media (max-width: 860px) {
+      .hero, .panel-row { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .wrap { padding: var(--space-4); }
+      .stats { grid-template-columns: 1fr; }
+      .topbar { align-items:flex-start; flex-direction:column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">€</div>
+        <div>
+          <div class="tag">Pretotype · 5–10 min</div>
+          <div class="display" style="font-size:1.7rem; font-family: var(--font-display);">The Funding Game</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:.75rem; flex-wrap:wrap;">
+        <button class="btn ghost" id="themeToggle" aria-label="Toggle theme">🌓 Theme</button>
+        <button class="btn" id="resetTop">↩ Restart</button>
+      </div>
+    </div>
+
+    <!-- INTRO SCREEN -->
+    <section id="screen-intro" class="screen active">
+      <div class="hero">
+        <div class="card">
+          <span class="pill primary">Startup simulation</span>
+          <h1>Raise money without losing your company.</h1>
+          <p class="muted" style="margin-top: 1rem;">In this prototype, you play as the founder of <strong>Startech</strong>, a growing startup that needs capital to survive and scale. Your challenge is to choose investors, negotiate smartly, and manage the long-term trade-off between growth, control, and ownership.</p>
+          <div class="footer-actions">
+            <button class="btn primary" id="startGame">Start prototype →</button>
+          </div>
+        </div>
+        <div class="hero-art">
+          <div>
+            <span class="pill gold">What this prototype tests</span>
+          </div>
+          <div class="mini-list">
+            <div class="mini-item"><strong>Core mechanism</strong><br><span class="muted">Choose funding type, deal terms, and negotiation strategy across 3 rounds.</span></div>
+            <div class="mini-item"><strong>Learning alignment</strong><br><span class="muted">Understand dilution, investor incentives, and long-term consequences.</span></div>
+            <div class="mini-item"><strong>Competition</strong><br><span class="muted">Finish with a score and compare yourself on the leaderboard.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GAME SCREEN -->
+    <section id="screen-game" class="screen">
+      <div class="timeline" id="timeline"></div>
+      <div class="stats">
+        <div class="stat">
+          <div class="label">💰 Cash</div>
+          <div class="value" id="cashVal"></div>
+          <div class="meter"><span id="cashBar"></span></div>
+        </div>
+        <div class="stat">
+          <div class="label">📈 Growth</div>
+          <div class="value" id="growthVal"></div>
+          <div class="meter"><span id="growthBar"></span></div>
+        </div>
+        <div class="stat">
+          <div class="label">🏠 Ownership</div>
+          <div class="value" id="ownershipVal"></div>
+          <div class="meter"><span id="ownershipBar"></span></div>
+        </div>
+        <div class="stat">
+          <div class="label">🤝 Investor trust</div>
+          <div class="value" id="trustVal"></div>
+          <div class="meter"><span id="trustBar"></span></div>
+        </div>
+      </div>
+      <div class="panel-row">
+        <div class="card">
+          <span class="pill primary" id="roundLabel">Round 1</span>
+          <h2 id="scenarioTitle"></h2>
+          <p id="scenarioText" class="muted"></p>
+          <div class="choices" id="choices"></div>
+        </div>
+        <div class="card">
+          <h3>How scoring works</h3>
+          <p class="muted">You are rewarded for growing the company and surviving, but you lose points if you give away too much ownership or damage investor trust.</p>
+          <div class="mini-list">
+            <div class="mini-item"><strong>Immediate feedback</strong><br><span class="muted">Each choice changes cash, growth, ownership, and trust.</span></div>
+            <div class="mini-item"><strong>Cumulative feedback</strong><br><span class="muted">Earlier decisions affect later rounds and your final score.</span></div>
+            <div class="mini-item"><strong>Competitive layer</strong><br><span class="muted">A simple leaderboard compares outcomes and encourages replay.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEEDBACK SCREEN -->
+    <section id="screen-feedback" class="screen">
+      <div class="card">
+        <span class="pill gold">Decision feedback</span>
+        <h2 id="feedbackTitle"></h2>
+        <p id="feedbackText" class="muted"></p>
+        <div class="panel-row" style="margin-top:1rem;">
+          <div class="result-box" id="effectList"></div>
+          <div class="result-box">
+            <h3>Why this matters</h3>
+            <p class="muted" id="learningNote"></p>
+          </div>
+        </div>
+        <div class="footer-actions">
+          <button class="btn primary" id="continueBtn">Continue →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- END SCREEN -->
+    <section id="screen-end" class="screen">
+      <div class="hero">
+        <div class="card">
+          <span class="pill primary">Final outcome</span>
+          <h1 id="endingTitle"></h1>
+          <p id="endingText" class="muted" style="margin-top:0.75rem;"></p>
+          <div class="stats" style="margin-top:1rem;">
+            <div class="stat"><div class="label">🏆 Final score</div><div class="value" id="finalScore"></div></div>
+            <div class="stat"><div class="label">💰 Cash</div><div class="value" id="finalCash"></div></div>
+            <div class="stat"><div class="label">📈 Growth</div><div class="value" id="finalGrowth"></div></div>
+            <div class="stat"><div class="label">🏠 Ownership</div><div class="value" id="finalOwnership"></div></div>
+          </div>
+          <div class="footer-actions">
+            <button class="btn primary" id="playAgain">Play again</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Leaderboard</h2>
+          <p class="muted">This mock ranking system adds a competitive element to the prototype.</p>
+          <div id="leaderboard"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const rounds = [
+      {
+        title: 'Seed funding: survival or control?',
+        text: 'You have a promising product but only a short runway. An angel investor and a venture capital fund are both interested, but they want very different terms.',
+        learning: 'This round introduces the trade-off between immediate funding and long-term founder control. Early decisions set the tone for the entire funding journey.',
+        choices: [
+          {
+            title: 'Take the VC offer',
+            desc: '€300k fast, strong network, but 20% equity and a board seat.',
+            feedback: 'You secure enough money to grow quickly, but you give away a noticeable share of the company and increase investor influence on future decisions.',
+            effects: { cash: 30, growth: 18, ownership: -20, trust: 8 }
+          },
+          {
+            title: 'Take the angel deal',
+            desc: '€150k, lighter pressure, and only 10% equity.',
+            feedback: 'You preserve more control, but cash remains tight so future decisions will be more stressful and constrained.',
+            effects: { cash: 15, growth: 8, ownership: -10, trust: 4 }
+          },
+          {
+            title: 'Bootstrap for now',
+            desc: 'Keep full control and delay fundraising.',
+            feedback: 'You protect ownership completely, but the company struggles with a weak cash position and slower growth entering the next round.',
+            effects: { cash: -8, growth: 3, ownership: 0, trust: -3 }
+          }
+        ]
+      },
+      {
+        title: 'Negotiation round: valuation vs certainty',
+        text: 'Your startup is getting traction. A new investor offers more money, but the contract includes stronger liquidation preferences and faster scaling targets.',
+        learning: 'Players experience how attractive headline numbers can hide restrictive terms. The best deal is not always the biggest number.',
+        choices: [
+          {
+            title: 'Accept the aggressive term sheet',
+            desc: 'High valuation, big push for growth, but strong investor protections.',
+            feedback: 'The company looks impressive on paper, but the pressure increases and ownership falls further. You may regret this later.',
+            effects: { cash: 20, growth: 22, ownership: -15, trust: 5 }
+          },
+          {
+            title: 'Negotiate better terms',
+            desc: 'Slightly less money, but softer clauses and shared expectations.',
+            feedback: 'You build a healthier investor relationship and protect future flexibility, even if growth is a bit slower this round.',
+            effects: { cash: 12, growth: 14, ownership: -8, trust: 10 }
+          },
+          {
+            title: 'Reject and focus on revenue',
+            desc: 'Avoid dilution and grow more carefully through customers.',
+            feedback: 'You keep more ownership, but expansion slows and you risk being overtaken by well-funded competitors.',
+            effects: { cash: 4, growth: 7, ownership: 0, trust: -2 }
+          }
+        ]
+      },
+      {
+        title: 'Final stretch: exit, scale, or stay independent',
+        text: 'You now have real traction, but the next choice will define the company. You can pursue a rapid exit, scale with another big round, or stay independent and grow sustainably.',
+        learning: 'The final round makes players reflect on how earlier decisions shape the founder\'s real strategic options. Not all paths are equally available.',
+        choices: [
+          {
+            title: 'Go for acquisition',
+            desc: 'Safer exit, strong return, but you give up long-term independence.',
+            feedback: 'You secure a successful exit, especially if trust and growth are strong. The company journey ends here — but on your terms.',
+            effects: { cash: 25, growth: 10, ownership: -5, trust: 8 }
+          },
+          {
+            title: 'Raise a major growth round',
+            desc: 'Maximum scaling potential, but heavy dilution risk.',
+            feedback: 'If your company is healthy, this creates a high-value outcome. If not, it can push you too far from founder control.',
+            effects: { cash: 18, growth: 26, ownership: -18, trust: 6 }
+          },
+          {
+            title: 'Stay independent',
+            desc: 'Grow steadily with more control and slower expansion.',
+            feedback: 'You may not become the biggest player, but you keep more ownership and strategic freedom for the future.',
+            effects: { cash: 8, growth: 12, ownership: 4, trust: 4 }
+          }
+        ]
+      }
+    ];
+
+    const initialState = () => ({ cash: 45, growth: 20, ownership: 100, trust: 50, round: 0, score: 0 });
+    let state = initialState();
+
+    const $ = id => document.getElementById(id);
+    const screens = ['intro', 'game', 'feedback', 'end'];
+
+    function showScreen(name) {
+      screens.forEach(s => $(`screen-${s}`).classList.remove('active'));
+      $(`screen-${name}`).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function clamp(v) { return Math.max(0, Math.min(100, v)); }
+    function euro(v) { return `€${Math.round(v)}0k`; }
+    function signed(n) { return n > 0 ? `+${n}` : `${n}`; }
+    function signedClass(n) { return n > 0 ? 'effect-positive' : n < 0 ? 'effect-negative' : ''; }
+
+    function updateStats() {
+      $('cashVal').textContent = euro(state.cash);
+      $('growthVal').textContent = `${Math.round(state.growth)}%`;
+      $('ownershipVal').textContent = `${Math.round(state.ownership)}%`;
+      $('trustVal').textContent = `${Math.round(state.trust)}%`;
+      $('cashBar').style.width = `${clamp(state.cash)}%`;
+      $('growthBar').style.width = `${clamp(state.growth)}%`;
+      $('ownershipBar').style.width = `${clamp(state.ownership)}%`;
+      $('trustBar').style.width = `${clamp(state.trust)}%`;
+    }
+
+    function renderTimeline() {
+      $('timeline').innerHTML = rounds.map((_, i) => `
+        <div class="dot ${i < state.round ? 'active' : i === state.round ? 'active' : ''}"></div>
+        ${i < rounds.length - 1 ? '<div style="height:2px;width:24px;background:var(--color-border);border-radius:2px;"></div>' : ''}
+      `).join('');
+    }
+
+    function renderRound() {
+      updateStats();
+      renderTimeline();
+      const round = rounds[state.round];
+      $('roundLabel').textContent = `Round ${state.round + 1} of ${rounds.length}`;
+      $('scenarioTitle').textContent = round.title;
+      $('scenarioText').textContent = round.text;
+      $('choices').innerHTML = round.choices.map((choice, index) => `
+        <button class="choice" data-index="${index}">
+          <strong>${choice.title}</strong>
+          <span class="muted">${choice.desc}</span>
+        </button>
+      `).join('');
+      document.querySelectorAll('.choice').forEach(btn => {
+        btn.addEventListener('click', () => chooseOption(Number(btn.dataset.index)));
+      });
+    }
+
+    function chooseOption(index) {
+      const choice = rounds[state.round].choices[index];
+      const e = choice.effects;
+
+      state.cash = clamp(state.cash + e.cash);
+      state.growth = clamp(state.growth + e.growth);
+      state.ownership = clamp(state.ownership + e.ownership);
+      state.trust = clamp(state.trust + e.trust);
+
+      const roundScore = (state.cash * 0.2) + (state.growth * 0.35) + (state.ownership * 0.3) + (state.trust * 0.15);
+      state.score += Math.round(roundScore);
+
+      $('feedbackTitle').textContent = choice.title;
+      $('feedbackText').textContent = choice.feedback;
+      $('learningNote').textContent = rounds[state.round].learning;
+      $('effectList').innerHTML = `
+        <h3>Effect on Startech</h3>
+        <div style="display:grid; gap:0.5rem; margin-top:0.75rem;">
+          <div>💰 Cash: <span class="${signedClass(e.cash)}">${signed(e.cash)}</span></div>
+          <div>📈 Growth: <span class="${signedClass(e.growth)}">${signed(e.growth)}</span></div>
+          <div>🏠 Ownership: <span class="${signedClass(e.ownership)}">${signed(e.ownership)}%</span></div>
+          <div>🤝 Trust: <span class="${signedClass(e.trust)}">${signed(e.trust)}</span></div>
+        </div>
+        <p class="muted" style="margin-top:0.75rem; font-size: var(--text-sm);">Good startup decisions are not only about getting more money, but about protecting long-term strategic position.</p>
+      `;
+
+      showScreen('feedback');
+    }
+
+    function nextStep() {
+      state.round += 1;
+      if (state.round >= rounds.length) {
+        renderEnding();
+        showScreen('end');
+      } else {
+        renderRound();
+        showScreen('game');
+      }
+    }
+
+    function renderEnding() {
+      const outcome = getOutcome();
+      $('endingTitle').textContent = outcome.title;
+      $('endingText').textContent = outcome.text;
+      $('finalScore').textContent = `${state.score} pts`;
+      $('finalCash').textContent = euro(state.cash);
+      $('finalGrowth').textContent = `${Math.round(state.growth)}%`;
+      $('finalOwnership').textContent = `${Math.round(state.ownership)}%`;
+
+      const board = [
+        { name: 'You', score: state.score, you: true },
+        { name: 'Aniq', score: Math.max(120, state.score - 18) },
+        { name: 'Jacob', score: Math.max(102, state.score - 35) },
+        { name: 'Team Alpha', score: state.score + 12 },
+        { name: 'Team Beta', score: Math.max(98, state.score - 52) }
+      ].sort((a, b) => b.score - a.score);
+
+      $('leaderboard').innerHTML = board.map((row, i) => `
+        <div class="leaderboard-row ${row.you ? 'you' : ''}">
+          <div>${i + 1}. ${row.name}${row.you ? ' 👈' : ''}</div>
+          <div>${row.score} pts</div>
+        </div>
+      `).join('');
+    }
+
+    function getOutcome() {
+      if (state.growth >= 70 && state.ownership >= 45 && state.trust >= 55) {
+        return {
+          title: 'Strong founder-led success 🏆',
+          text: 'You built a valuable company, kept meaningful ownership, and made disciplined funding decisions. This is the strongest win condition — it combines growth with control.'
+        };
+      }
+      if (state.growth >= 70 && state.ownership < 45) {
+        return {
+          title: 'Big company, less control 📈',
+          text: 'The startup scaled well, but the founder gave away a lot of ownership along the way. You achieved growth, but at a strategic cost.'
+        };
+      }
+      if (state.ownership >= 60 && state.growth < 55) {
+        return {
+          title: 'Stable but slower path 🏠',
+          text: 'You protected control and ownership, but growth stayed more moderate. This still counts as a meaningful success if your goal is independence over scale.'
+        };
+      }
+      return {
+        title: 'Difficult funding journey 📉',
+        text: 'Your choices kept the company alive for a while, but the business struggled to balance cash, trust, and long-term strategy. This outcome still teaches — it shows how funding decisions accumulate over time.'
+      };
+    }
+
+    function resetGame() {
+      state = initialState();
+      renderRound();
+      showScreen('intro');
+    }
+
+    // Event listeners
+    $('startGame').addEventListener('click', () => { state = initialState(); renderRound(); showScreen('game'); });
+    $('continueBtn').addEventListener('click', nextStep);
+    $('playAgain').addEventListener('click', resetGame);
+    $('resetTop').addEventListener('click', resetGame);
+    $('themeToggle').addEventListener('click', () => {
+      const root = document.documentElement;
+      root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>
